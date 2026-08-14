@@ -7,9 +7,9 @@ import {
   ChecklistItem,
   Assignee,
   ChecklistTemplate,
+  ContentFormatItem,
   POPULAR_TAGS,
   STAGES,
-  FORMAT_CONFIG,
   PRIORITY_CONFIG,
 } from '../types';
 import { getPreviousStage, getNextStage, getChecklistProgress, formatDateBR } from '../utils';
@@ -38,6 +38,7 @@ interface CardModalProps {
   initialDate?: string;
   teamMembers: Assignee[];
   checklistTemplates: ChecklistTemplate[];
+  formats: ContentFormatItem[];
   onSave: (savedCard: ContentCard) => void;
   onDuplicate: (card: ContentCard) => void;
   onDelete: (cardId: string) => void;
@@ -51,6 +52,7 @@ export const CardModal: React.FC<CardModalProps> = ({
   initialDate,
   teamMembers,
   checklistTemplates,
+  formats,
   onSave,
   onDuplicate,
   onDelete,
@@ -61,7 +63,7 @@ export const CardModal: React.FC<CardModalProps> = ({
 
   // Form State
   const [title, setTitle] = useState('');
-  const [format, setFormat] = useState<ContentFormat>('YouTube longo');
+  const [format, setFormat] = useState<ContentFormat>('');
   const [scheduledDate, setScheduledDate] = useState('');
   const [assigneeId, setAssigneeId] = useState(teamMembers[0]?.id ?? '');
   const [priority, setPriority] = useState<Priority>('Média');
@@ -94,7 +96,7 @@ export const CardModal: React.FC<CardModalProps> = ({
         ).padStart(2, '0')}`;
 
       setTitle('');
-      setFormat('YouTube longo');
+      setFormat(formats[0]?.name ?? '');
       setScheduledDate(defaultDateStr);
       setAssigneeId(teamMembers[0]?.id ?? '');
       setPriority('Média');
@@ -116,7 +118,7 @@ export const CardModal: React.FC<CardModalProps> = ({
       setNotes('');
     }
     setShowDeleteConfirm(false);
-  }, [card, initialStage, initialDate, isOpen]);
+  }, [card, initialStage, initialDate, isOpen, formats]);
 
   // Checklist handlers
   const handleToggleChecklist = (id: string) => {
@@ -167,7 +169,7 @@ export const CardModal: React.FC<CardModalProps> = ({
     const updatedCard: ContentCard = {
       id: card ? card.id : `card-${Date.now()}`,
       title: title.trim(),
-      format,
+      format: format || formats[0]?.name || '',
       scheduledDate,
       assignee: selectedAssignee,
       priority,
@@ -302,14 +304,19 @@ export const CardModal: React.FC<CardModalProps> = ({
               <select
                 id="card-modal-format-select"
                 value={format}
-                onChange={(e) => setFormat(e.target.value as ContentFormat)}
+                onChange={(e) => setFormat(e.target.value)}
                 className="w-full bg-[#050c1c] text-slate-200 rounded-xl px-3 py-2 border border-cyan-950/80 focus:border-cyan-400 outline-none text-xs transition-all cursor-pointer"
               >
-                <option value="YouTube longo">YouTube longo</option>
-                <option value="Shorts">Shorts</option>
-                <option value="Reels">Reels</option>
-                <option value="Carrossel">Carrossel</option>
-                <option value="Newsletter">Newsletter</option>
+                {formats.length === 0 && (
+                  <option value="" className="bg-[#050c1c] text-slate-400">
+                    Nenhum formato cadastrado
+                  </option>
+                )}
+                {formats.map((f) => (
+                  <option key={f.id} value={f.name} className="bg-[#050c1c] text-slate-200">
+                    {f.name}
+                  </option>
+                ))}
               </select>
             </div>
 

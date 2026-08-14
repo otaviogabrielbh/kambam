@@ -1,23 +1,20 @@
 import React from 'react';
-import { ContentCard, FORMAT_CONFIG, PRIORITY_CONFIG, StageId } from '../types';
+import { ContentCard, PRIORITY_CONFIG, StageId, ContentFormatItem } from '../types';
 import { formatDateBR, isOverdue, getChecklistProgress, getPreviousStage, getNextStage } from '../utils';
+import { FormatIcon } from './FormatIcon';
 import {
   Calendar,
   CheckSquare,
   FileText,
   ChevronLeft,
   ChevronRight,
-  Youtube,
-  Zap,
-  Instagram,
-  Layers,
-  Mail,
   AlertCircle,
   GripVertical,
 } from 'lucide-react';
 
 interface ContentCardItemProps {
   card: ContentCard;
+  formats: ContentFormatItem[];
   onClick: () => void;
   onMoveStage: (cardId: string, newStage: StageId) => void;
   onDragStart: (e: React.DragEvent, card: ContentCard) => void;
@@ -27,17 +24,18 @@ interface ContentCardItemProps {
 
 export const ContentCardItem: React.FC<ContentCardItemProps> = ({
   card,
+  formats,
   onClick,
   onMoveStage,
   onDragStart,
   onDragEnd,
   isDragging = false,
 }) => {
-  const formatInfo = FORMAT_CONFIG[card.format] || {
-    label: card.format,
+  const formatInfo = formats.find((f) => f.name === card.format) || {
     bg: 'bg-slate-800',
     text: 'text-slate-200',
     border: 'border-slate-700',
+    iconName: '',
   };
 
   const priorityInfo = PRIORITY_CONFIG[card.priority] || {
@@ -52,24 +50,6 @@ export const ContentCardItem: React.FC<ContentCardItemProps> = ({
   const checklistProgress = getChecklistProgress(card.checklist);
   const prevStage = getPreviousStage(card.stage);
   const nextStage = getNextStage(card.stage);
-
-  // Helper for format icon
-  const renderFormatIcon = () => {
-    switch (card.format) {
-      case 'YouTube longo':
-        return <Youtube className="w-3 h-3" />;
-      case 'Shorts':
-        return <Zap className="w-3 h-3" />;
-      case 'Reels':
-        return <Instagram className="w-3 h-3" />;
-      case 'Carrossel':
-        return <Layers className="w-3 h-3" />;
-      case 'Newsletter':
-        return <Mail className="w-3 h-3" />;
-      default:
-        return null;
-    }
-  };
 
   const handlePrevClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,7 +85,7 @@ export const ContentCardItem: React.FC<ContentCardItemProps> = ({
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${formatInfo.bg} ${formatInfo.text} ${formatInfo.border}`}
           >
-            {renderFormatIcon()}
+            <FormatIcon iconName={formatInfo.iconName} className="w-3 h-3" />
             <span>{card.format}</span>
           </span>
 

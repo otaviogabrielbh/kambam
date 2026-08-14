@@ -57,6 +57,7 @@ export const COLLECTIONS = {
   cards: 'cards',
   teamMembers: 'team_members',
   checklistTemplates: 'checklist_templates',
+  contentFormats: 'content_formats',
 } as const;
 
 type DocData = { id: string } & Record<string, unknown>;

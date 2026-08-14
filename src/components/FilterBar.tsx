@@ -1,10 +1,10 @@
 import React from 'react';
 import { Search, X, Filter, User, Tag, AlertCircle, Layers } from 'lucide-react';
-import { ContentFormat, Priority, Assignee, POPULAR_TAGS } from '../types';
+import { Priority, Assignee, POPULAR_TAGS, ContentFormatItem } from '../types';
 
 export interface FilterState {
   search: string;
-  format: ContentFormat | 'all';
+  format: string | 'all';
   assigneeId: string | 'all';
   priority: Priority | 'all';
   tag: string | 'all';
@@ -17,6 +17,7 @@ interface FilterBarProps {
   onResetFilters: () => void;
   availableTags: string[];
   teamMembers: Assignee[];
+  formats: ContentFormatItem[];
 }
 
 export const FilterBar: React.FC<FilterBarProps> = ({
@@ -25,6 +26,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onResetFilters,
   availableTags,
   teamMembers,
+  formats,
 }) => {
   const activeFilterCount = [
     filters.search !== '',
@@ -40,7 +42,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onFilterChange({ ...filters, format: e.target.value as ContentFormat | 'all' });
+    onFilterChange({ ...filters, format: e.target.value });
   };
 
   const handleAssigneeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -98,11 +100,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               }`}
             >
               <option value="all" className="bg-[#081226] text-slate-300">Formato: Todos</option>
-              <option value="YouTube longo" className="bg-[#081226] text-slate-300">YouTube longo</option>
-              <option value="Shorts" className="bg-[#081226] text-slate-300">Shorts</option>
-              <option value="Reels" className="bg-[#081226] text-slate-300">Reels</option>
-              <option value="Carrossel" className="bg-[#081226] text-slate-300">Carrossel</option>
-              <option value="Newsletter" className="bg-[#081226] text-slate-300">Newsletter</option>
+              {formats.map((f) => (
+                <option key={f.id} value={f.name} className="bg-[#081226] text-slate-300">
+                  {f.name}
+                </option>
+              ))}
             </select>
           </div>
 

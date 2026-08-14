@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { ContentCard, STAGES, StageId } from '../types';
+import { ContentCard, STAGES, StageId, ContentFormatItem } from '../types';
 import { ContentCardItem } from './ContentCardItem';
 import { Plus, Sparkles, CheckCircle2, Cog, Lightbulb, SearchCheck } from 'lucide-react';
 
 interface KanbanBoardProps {
   cards: ContentCard[];
+  formats: ContentFormatItem[];
   onCardClick: (card: ContentCard) => void;
   onNewCardInStage: (stage: StageId) => void;
   onMoveStage: (cardId: string, newStage: StageId) => void;
@@ -12,6 +13,7 @@ interface KanbanBoardProps {
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   cards,
+  formats,
   onCardClick,
   onNewCardInStage,
   onMoveStage,
@@ -135,6 +137,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     <ContentCardItem
                       key={card.id}
                       card={card}
+                      formats={formats}
                       onClick={() => onCardClick(card)}
                       onMoveStage={onMoveStage}
                       onDragStart={handleDragStart}

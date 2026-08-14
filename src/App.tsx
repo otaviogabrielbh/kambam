@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ContentCard, StageId, ContentFormat, Priority, Assignee, ChecklistTemplate, TEAM_MEMBERS, DEFAULT_CHECKLIST_TEMPLATES } from './types';
+import { ContentCard, StageId, ContentFormat, Priority, Assignee, ChecklistTemplate, ContentFormatItem, TEAM_MEMBERS, DEFAULT_CHECKLIST_TEMPLATES, DEFAULT_FORMATS } from './types';
 import { getSampleCards } from './initialData';
 import { Header } from './components/Header';
 import { MetricsBar } from './components/MetricsBar';
@@ -17,6 +17,7 @@ import { firestoreService, isFirebaseConfigured, COLLECTIONS } from './firebase'
 const STORAGE_KEY = 'kambam_content_pipeline_v1';
 const TEAM_STORAGE_KEY = 'kambam_team_members_v1';
 const TEMPLATE_STORAGE_KEY = 'kambam_checklist_templates_v1';
+const FORMAT_STORAGE_KEY = 'kambam_content_formats_v1';
 
 export default function App() {
   // Firebase load state: prevents overwriting remote data before hydration
@@ -75,6 +76,24 @@ export default function App() {
     return DEFAULT_CHECKLIST_TEMPLATES;
   });
 
+  // Content Formats State (defaults; replaced by Firestore if present)
+  const [formats, setFormats] = useState<ContentFormatItem[]>(() => {
+    if (!isFirebaseConfigured) {
+      try {
+        const saved = localStorage.getItem(FORMAT_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not read content formats from localStorage');
+      }
+    }
+    return DEFAULT_FORMATS;
+  });
+
   // Hydrate from Firestore once on mount
   useEffect(() => {
     let cancelled = false;
@@ -86,10 +105,11 @@ export default function App() {
       }
 
       try {
-        const [loadedCards, loadedMembers, loadedTemplates] = await Promise.all([
+        const [loadedCards, loadedMembers, loadedTemplates, loadedFormats] = await Promise.all([
           firestoreService.getAll(COLLECTIONS.cards),
           firestoreService.getAll(COLLECTIONS.teamMembers),
           firestoreService.getAll(COLLECTIONS.checklistTemplates),
+          firestoreService.getAll(COLLECTIONS.contentFormats),
         ]);
 
         if (cancelled) return;
@@ -102,6 +122,9 @@ export default function App() {
         }
         if (Array.isArray(loadedTemplates) && loadedTemplates.length > 0) {
           setChecklistTemplates(loadedTemplates as unknown as ChecklistTemplate[]);
+        }
+        if (Array.isArray(loadedFormats) && loadedFormats.length > 0) {
+          setFormats(loadedFormats as unknown as ContentFormatItem[]);
         }
       } catch (e) {
         console.warn('Could not load from Firestore, using local data', e);
@@ -164,6 +187,23 @@ export default function App() {
         });
     }
   }, [checklistTemplates, dataLoaded]);
+
+  // Persist content formats to localStorage + Firestore on change (after hydration)
+  useEffect(() => {
+    if (!dataLoaded) return;
+    try {
+      localStorage.setItem(FORMAT_STORAGE_KEY, JSON.stringify(formats));
+    } catch (e) {
+      console.warn('Could not save content formats to localStorage');
+    }
+    if (isFirebaseConfigured) {
+      firestoreService
+        .syncCollection(COLLECTIONS.contentFormats, formats as never[])
+        .catch((e) => {
+          console.warn('Could not sync content formats to Firestore', e);
+        });
+    }
+  }, [formats, dataLoaded]);
 
   // View mode
   const [viewMode, setViewMode] = useState<'kanban' | 'calendar'>('kanban');
@@ -333,12 +373,6 @@ export default function App() {
     showToast('Filtros resetados.');
   };
 
-  const handleResetData = () => {
-    const initial = getSampleCards();
-    setCards(initial);
-    showToast('Dados de exemplo restaurados com sucesso!', 'success');
-  };
-
   const handleImportCards = (importedCards: ContentCard[]) => {
     setCards(importedCards);
     showToast(`${importedCards.length} conteúdos importados!`, 'success');
@@ -367,7 +401,6 @@ export default function App() {
         onNewCard={() => handleOpenNewCard('ideas')}
         onOpenJsonModal={() => setIsJsonModalOpen(true)}
         onOpenSettings={() => setIsSettingsModalOpen(true)}
-        onResetData={handleResetData}
       />
 
       {/* Real-time Tracking & Metrics Bar */}
@@ -393,6 +426,7 @@ export default function App() {
         onResetFilters={handleResetFilters}
         availableTags={availableTags}
         teamMembers={teamMembers}
+        formats={formats}
       />
 
       {/* Main View Area: Kanban or Calendar */}
@@ -403,6 +437,7 @@ export default function App() {
             onCardClick={handleCardClick}
             onNewCardInStage={(stage) => handleOpenNewCard(stage)}
             onMoveStage={handleMoveStage}
+            formats={formats}
           />
         ) : (
           <CalendarView
@@ -423,6 +458,7 @@ export default function App() {
         initialDate={modalInitialDate}
         teamMembers={teamMembers}
         checklistTemplates={checklistTemplates}
+        formats={formats}
         onSave={handleSaveCard}
         onDuplicate={handleDuplicateCard}
         onDelete={handleDeleteCard}
@@ -436,7 +472,7 @@ export default function App() {
         onImportCards={handleImportCards}
       />
 
-      {/* Settings Modal: Responsáveis & Checklists */}
+      {/* Settings Modal: Responsáveis, Checklists & Formatos */}
       <SettingsModal
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
@@ -444,6 +480,8 @@ export default function App() {
         onSaveTeamMembers={setTeamMembers}
         checklistTemplates={checklistTemplates}
         onSaveChecklistTemplates={setChecklistTemplates}
+        formats={formats}
+        onSaveFormats={setFormats}
       />
 
       {/* Toast Feedback Notification */}

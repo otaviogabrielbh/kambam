@@ -1,6 +1,6 @@
 export type StageId = 'ideas' | 'production' | 'review' | 'done';
 
-export type ContentFormat = 'YouTube longo' | 'Shorts' | 'Reels' | 'Carrossel' | 'Newsletter';
+export type ContentFormat = string;
 
 export type Priority = 'Alta' | 'Média' | 'Baixa';
 
@@ -76,46 +76,75 @@ export const STAGES: StageConfig[] = [
   },
 ];
 
-export const FORMAT_CONFIG: Record<
-  ContentFormat,
-  { label: string; bg: string; text: string; border: string; iconName: string }
-> = {
-  'YouTube longo': {
-    label: 'YouTube longo',
+export interface ContentFormatItem {
+  id: string;
+  name: string;
+  bg: string;
+  text: string;
+  border: string;
+  iconName: string;
+}
+
+export const DEFAULT_FORMATS: ContentFormatItem[] = [
+  {
+    id: 'format-youtube',
+    name: 'YouTube longo',
     bg: 'bg-rose-500/15',
     text: 'text-rose-400',
     border: 'border-rose-500/30',
     iconName: 'Youtube',
   },
-  Shorts: {
-    label: 'Shorts',
+  {
+    id: 'format-shorts',
+    name: 'Shorts',
     bg: 'bg-amber-500/15',
     text: 'text-amber-400',
     border: 'border-amber-500/30',
     iconName: 'Zap',
   },
-  Reels: {
-    label: 'Reels',
+  {
+    id: 'format-reels',
+    name: 'Reels',
     bg: 'bg-fuchsia-500/15',
     text: 'text-fuchsia-400',
     border: 'border-fuchsia-500/30',
     iconName: 'Instagram',
   },
-  Carrossel: {
-    label: 'Carrossel',
+  {
+    id: 'format-carrossel',
+    name: 'Carrossel',
     bg: 'bg-blue-500/15',
     text: 'text-blue-400',
     border: 'border-blue-500/30',
     iconName: 'Layers',
   },
-  Newsletter: {
-    label: 'Newsletter',
+  {
+    id: 'format-newsletter',
+    name: 'Newsletter',
     bg: 'bg-emerald-500/15',
     text: 'text-emerald-400',
     border: 'border-emerald-500/30',
     iconName: 'Mail',
   },
-};
+];
+
+export const FORMAT_STYLE_OPTIONS: {
+  bg: string;
+  text: string;
+  border: string;
+  swatch: string;
+}[] = [
+  { bg: 'bg-rose-500/15', text: 'text-rose-400', border: 'border-rose-500/30', swatch: 'bg-rose-500' },
+  { bg: 'bg-amber-500/15', text: 'text-amber-400', border: 'border-amber-500/30', swatch: 'bg-amber-500' },
+  { bg: 'bg-fuchsia-500/15', text: 'text-fuchsia-400', border: 'border-fuchsia-500/30', swatch: 'bg-fuchsia-500' },
+  { bg: 'bg-blue-500/15', text: 'text-blue-400', border: 'border-blue-500/30', swatch: 'bg-blue-500' },
+  { bg: 'bg-emerald-500/15', text: 'text-emerald-400', border: 'border-emerald-500/30', swatch: 'bg-emerald-500' },
+  { bg: 'bg-violet-500/15', text: 'text-violet-400', border: 'border-violet-500/30', swatch: 'bg-violet-500' },
+  { bg: 'bg-cyan-500/15', text: 'text-cyan-400', border: 'border-cyan-500/30', swatch: 'bg-cyan-500' },
+  { bg: 'bg-orange-500/15', text: 'text-orange-400', border: 'border-orange-500/30', swatch: 'bg-orange-500' },
+  { bg: 'bg-teal-500/15', text: 'text-teal-400', border: 'border-teal-500/30', swatch: 'bg-teal-500' },
+  { bg: 'bg-slate-500/15', text: 'text-slate-300', border: 'border-slate-500/30', swatch: 'bg-slate-400' },
+];
 
 export const PRIORITY_CONFIG: Record<
   Priority,

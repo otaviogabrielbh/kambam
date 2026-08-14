@@ -1,5 +1,5 @@
 import React from 'react';
-import { Kanban, Calendar as CalendarIcon, Plus, Sparkles, Code2, RotateCcw, Settings } from 'lucide-react';
+import { Kanban, Calendar as CalendarIcon, Plus, Sparkles, Code2, Settings } from 'lucide-react';
 
 interface HeaderProps {
   viewMode: 'kanban' | 'calendar';
@@ -7,7 +7,6 @@ interface HeaderProps {
   onNewCard: () => void;
   onOpenJsonModal: () => void;
   onOpenSettings: () => void;
-  onResetData: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,7 +15,6 @@ export const Header: React.FC<HeaderProps> = ({
   onNewCard,
   onOpenJsonModal,
   onOpenSettings,
-  onResetData,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#050b1a]/95 backdrop-blur-xl border-b border-cyan-950/60 px-4 lg:px-8 py-3.5 shadow-xl shadow-black/40">
@@ -70,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* JSON & Reset Utility Buttons */}
+          {/* JSON & Utility Buttons */}
           <div className="flex items-center gap-1.5">
             <button
               id="btn-json-automation"
@@ -90,16 +88,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Settings className="w-4 h-4 text-slate-300" />
               <span className="hidden xl:inline">Configurações</span>
-            </button>
-
-            <button
-              id="btn-reset-demo"
-              onClick={onResetData}
-              title="Restaurar dados de exemplo"
-              className="p-2 rounded-xl bg-[#091124] text-slate-300 hover:text-amber-300 hover:bg-[#0e1b38] border border-cyan-950/60 hover:border-amber-800/50 transition-all flex items-center gap-1.5 text-xs cursor-pointer shadow-sm"
-            >
-              <RotateCcw className="w-4 h-4 text-slate-400 hover:text-amber-400" />
-              <span className="hidden xl:inline">Restaurar</span>
             </button>
           </div>
 

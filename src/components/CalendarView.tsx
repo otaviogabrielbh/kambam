@@ -1,18 +1,12 @@
 import React, { useState } from 'react';
-import { ContentCard, FORMAT_CONFIG, STAGES, StageId } from '../types';
+import { ContentCard, STAGES, StageId } from '../types';
 import { isOverdue, formatDateBR } from '../utils';
 import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
-  Clock,
   AlertCircle,
   Plus,
-  Layers,
-  Youtube,
-  Zap,
-  Instagram,
-  Mail,
 } from 'lucide-react';
 
 interface CalendarViewProps {
